@@ -1,4 +1,4 @@
-package com.exoplanetexplorer.ExoplanetExplorer;
+package com.exoplanetexplorer.ExoplanetExplorer.config;
 
 import org.springframework.web.client.RestTemplate;
 import org.springframework.context.annotation.Configuration;
