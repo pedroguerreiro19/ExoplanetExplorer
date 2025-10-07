@@ -13,12 +13,16 @@ import com.exoplanetexplorer.ExoplanetExplorer.dto.PlanetDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 public class APIService {
     private static final String NASA_API_URL = "https://exoplanetarchive.ipac.caltech.edu/TAP/sync";
     
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
+    private static final Logger logger = LoggerFactory.getLogger(APIService.class);
 
 
     public APIService(RestTemplate restTemplate, ObjectMapper objectMapper) {
@@ -66,8 +70,14 @@ public class APIService {
         String query = "select+pl_name,pl_rade,pl_bmasse,sy_dist,st_spectype,disc_year+from+pscomppars";
         String url = NASA_API_URL + "?query=" + query + "&format=json";
 
-        String response = restTemplate.getForObject(url, String.class);
-        return parseResponse(response);
+
+        try {
+            String response = restTemplate.getForObject(url, String.class);
+            return parseResponse(response);
+        } catch (Exception e) {
+            logger.error("Error fetching all planets", e.getMessage());
+            throw new RuntimeException("NASA API request failed");
+        }
     }
 
     public List<PlanetDTO> getFilteredPlanets(Map<String, String> filters) {
@@ -102,7 +112,29 @@ public class APIService {
         }
 
         String url = NASA_API_URL + "?query=" + finalQuery.replace(" ", "+") + "&format=json";
-        String response = restTemplate.getForObject(url, String.class);
-        return parseResponse(response);
+
+        try {
+            String response = restTemplate.getForObject(url, String.class);
+            return parseResponse(response);
+        } catch (Exception e) {
+            logger.error("Error fetching filtered planets", e.getMessage());
+            throw new RuntimeException("NASA API request failed");
         }
+    }
+
+    public List<PlanetDTO> searchPlanetsByName(String name) {
+        String query = "select pl_name, pl_rade, pl_bmasse, sy_dist, st_spectype, pl_eqt, disc_year, discoverymethod, sy_pnum, sy_snum " +
+                   "from pscomppars where pl_name='" + name + "'";
+        
+        String url = NASA_API_URL + "?query=" + query.replace(" ", "+") + "&format=json";
+        
+        try {
+            String response = restTemplate.getForObject(url, String.class);
+            List<PlanetDTO> planets = parseResponse(response);
+            return planets;
+        } catch (Exception e) {
+            logger.error("Error searching planet by name", e.getMessage());
+            throw new RuntimeException("NASA API request failed");
+        }
+    }
 }

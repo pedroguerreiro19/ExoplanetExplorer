@@ -33,5 +33,10 @@ public class ExoplanetExplorerController {
     public ResponseEntity<List<PlanetDTO>> filterPlanets(@RequestParam Map<String, String> filters) {
         return ResponseEntity.ok(apiService.getFilteredPlanets(filters));
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<PlanetDTO>> searchPlanets(@RequestParam String name) {
+        return ResponseEntity.ok(apiService.searchPlanetsByName(name));
+    }
     
 }

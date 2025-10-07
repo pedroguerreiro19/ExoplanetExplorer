@@ -23,12 +23,21 @@ class ExoplanetExplorerControllerTest {
                 .andExpect(content().contentType("application/json"));
     }
 
-    @Test void shouldReturnFilteredPlanets() throws Exception {
+    @Test 
+    void shouldReturnFilteredPlanets() throws Exception {
         mockMvc.perform(get("/planets/filter")
                 .param("pl_bmasse_min", "1")
                 .param("pl_bmasse_max", "10")
                 .param("disc_year", "2015"))
             .andExpect(status().isOk())
             .andExpect(content().contentType("application/json"));
+    }
+
+    @Test
+    void shouldReturnPlanetByName() throws Exception {
+        mockMvc.perform(get("/planets/search")
+                .param("name", "Kepler-22 b"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith("application/json"));
     }
 }
